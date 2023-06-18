@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "raf.rs.grpc";
+
+service StorageService {
+  rpc SendCommand(CommandRequest) returns (CommandResponse) {}
+  rpc AppendLog(LogEntry) returns (LogResponse) {}
+  rpc GetLeaderInfo(LeaderRequest) returns (LeaderInfo) {}
+}
+
+enum CommandRequestType {
+  GET = 0;
+  PUT = 1;
+  DELETE = 2;
+}
+
+message CommandRequest {
+  CommandRequestType command = 1;
+
+  string key = 3;
+  string value = 4;
+}
+
+enum RequestStatus {
+  STATUS_OK = 0;
+  UPDATE_REJECTED_NOT_LEADER = 1;
+  VALUE_FOR_KEY_NOT_FOUND = 2;
+}
+
+message CommandResponse {
+  RequestStatus status = 1;
+  string key = 3;
+  string value = 4;
+}
+
+message LogEntry {
+  uint64 entryAtIndex = 1;
+  bytes logEntryData = 2;
+}
+
+enum LogStatus {
+  LOG_OK = 0;
+  IO_ERROR = 1;
+  LOG_NO_LAST_ENTRY = 2;
+}
+message LogResponse {
+  LogStatus status = 1;
+  uint64 entryAtIndex = 2;
+  uint64 lastEntryIndex = 3;
+}
+
+message LeaderRequest {}
+
+message LeaderInfo{
+  bool imLeader = 1;
+  bytes connection = 2;
+}
